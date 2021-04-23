@@ -36,27 +36,25 @@ class CameraController: UIViewController {
   func startCaptureSeries() {
     fastLink?.invalidate()
     
-    let firstDelayTime = dispatch_time(dispatch_time_t(DispatchTime.now()), Int64(1 * Double(NSEC_PER_SEC)))
-    dispatch_after(firstDelayTime, dispatch_get_main_queue()) {
+    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
       self.countDownLabel.text = "Start"
       
-      let delayTime = dispatch_time(DISPATCH_TIME_NOW, Int64(2 * Double(NSEC_PER_SEC)))
-      dispatch_after(delayTime, dispatch_get_main_queue()) {
-        let displayLink = CADisplayLink(target: self, selector: Selector("displayLinkFired:"))
-        displayLink.frameInterval = 120
+      DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        let displayLink = CADisplayLink(target: self, selector: #selector(self.displayLinkFired(sender:)))
+        displayLink.preferredFramesPerSecond = 120
         
-        let fastLink = CADisplayLink(target: self, selector: Selector("fastLinkFired:"))
-        fastLink.frameInterval = 10
-        fastLink.addToRunLoop(NSRunLoop.mainRunLoop(), forMode: NSDefaultRunLoopMode)
+        let fastLink = CADisplayLink(target: self, selector: #selector(self.fastLinkFired(sender:)))
+        fastLink.preferredFramesPerSecond = 10
+        fastLink.add(to: RunLoop.main, forMode: RunLoop.Mode.default)
         self.fastLink = fastLink
         
-        displayLink.addToRunLoop(NSRunLoop.mainRunLoop(), forMode: NSDefaultRunLoopMode)
+        displayLink.add(to: RunLoop.main, forMode: RunLoop.Mode.default)
         self.displayLink = displayLink
       }
     }
   }
   
-  func fastLinkFired(sender: CADisplayLink) {
+  @objc func fastLinkFired(sender: CADisplayLink) {
     if justSnapped {
       justSnapped = false
       view.backgroundColor = UIColor.clear
@@ -80,7 +78,7 @@ class CameraController: UIViewController {
     view.backgroundColor = UIColor.white.withAlphaComponent(alphaAmount)
   }
   
-  func displayLinkFired(sender: CADisplayLink) {
+  @objc func displayLinkFired(sender: CADisplayLink) {
     if countDownLabel?.text == "Start" {
       flashView(didSnap: false)
       countDownLabel?.text = "1"
@@ -99,9 +97,8 @@ class CameraController: UIViewController {
       displayLink?.invalidate()
       self.pickerController?.takePicture()
       
-      let delayTime = dispatch_time(dispatch_time_t(DispatchTime.now()), Int64(0.2 * Double(NSEC_PER_SEC)))
-      dispatch_after(delayTime, dispatch_get_main_queue()) {
-        self.fastLinkFired(fastLink)
+      DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+        self.fastLinkFired(sender: fastLink)
         
         self.countDownLabel?.text = "Nice!"
       }

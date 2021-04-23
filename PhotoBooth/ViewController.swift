@@ -15,29 +15,23 @@ import Photos
 private class RenderSaver {
   static var locationManager: CLLocationManager?
   
-  private static let queue: dispatch_queue_t = {
-    let qos_attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_UTILITY, 0)
-    
-    return dispatch_queue_create("com.apricletechnologies.PhotoBooth.PrivatePhotoLibraryQueue", qos_attr)
-  }()
-  
   static var render: UIImage? {
     didSet {
       guard let render = render else { return }
       
       locationManager?.requestLocation()
       
-      dispatch_async(queue) {
-        PHPhotoLibrary.sharedPhotoLibrary().performChanges({
-          let request = PHAssetChangeRequest.creationRequestForAssetFromImage(render)
-          request.creationDate = NSDate()
+      DispatchQueue.main.async {
+        PHPhotoLibrary.shared().performChanges({
+          let request = PHAssetChangeRequest.creationRequestForAsset(from: render)
+          request.creationDate = NSDate() as Date
           
           if let location = locationManager?.location {
             request.location = location
           }
         }, completionHandler: { success, error in
           if !success || error != nil {
-            print("Bad things \(error)")
+            print("Bad things \(String(describing: error))")
           }
         })
       }
@@ -100,12 +94,7 @@ class ViewController: UIViewController {
           self.imageView.image = UIImage.resizeImage(image: $0, newHeight: self.view.bounds.height)
           self.imageView?.setNeedsLayout()
           
-//          let delayTime = dispatch_time(dispatch_time_t(DISPATCH_TIME_NOW), Int64(1 * Double(NSEC_PER_SEC)))
-//          dispatch_after(delayTime, dispatch_get_main_queue()) {
-//            self.promptForActions()
-//          }
-          
-          DispatchQueue.main.asyncAfter(deadline: DispatchTime(uptimeNanoseconds: DispatchTime.now() + DispatchTime(NSEC_PER_SEC))) {
+          DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             self.promptForActions()
           }
         }
