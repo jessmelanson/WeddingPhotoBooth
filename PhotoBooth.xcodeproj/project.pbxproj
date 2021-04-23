@@ -173,6 +173,7 @@
 				TargetAttributes = {
 					C9D71F691BA49C8A00084C37 = {
 						CreatedOnToolsVersion = 7.0;
+						DevelopmentTeam = P742UJ7363;
 					};
 					C9D71F7D1BA49C8A00084C37 = {
 						CreatedOnToolsVersion = 7.0;
@@ -383,10 +384,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = P742UJ7363;
 				INFOPLIST_FILE = PhotoBooth/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.apricletechnologies.PhotoBooth;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jessmelanson.WeddingPhotoBooth;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -396,10 +398,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = P742UJ7363;
 				INFOPLIST_FILE = PhotoBooth/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.apricletechnologies.PhotoBooth;
+				PRODUCT_BUNDLE_IDENTIFIER = com.jessmelanson.WeddingPhotoBooth;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

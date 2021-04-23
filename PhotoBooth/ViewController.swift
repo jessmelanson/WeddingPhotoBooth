@@ -159,8 +159,8 @@ class ViewController: UIViewController {
   override var prefersStatusBarHidden: Bool {
     return true
   }
-  
-  @IBAction func tapGestureTriggered(sender: UITapGestureRecognizer) {
+
+  @IBAction func tapGestureTriggered(_ sender: UIControl) {
     if let _ = photoStrip {
       promptForActions()
     } else {
