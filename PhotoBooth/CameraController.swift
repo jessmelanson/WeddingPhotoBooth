@@ -41,7 +41,7 @@ class CameraController: UIViewController {
       
       DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
         let displayLink = CADisplayLink(target: self, selector: #selector(self.displayLinkFired(sender:)))
-        displayLink.preferredFramesPerSecond = 120
+        displayLink.preferredFramesPerSecond = 1
         
         let fastLink = CADisplayLink(target: self, selector: #selector(self.fastLinkFired(sender:)))
         fastLink.preferredFramesPerSecond = 10
@@ -71,16 +71,15 @@ class CameraController: UIViewController {
     }
   }
   
-  private func flashView(didSnap: Bool) {
+  private func flashView() {
     justSnapped = true
     
-    let alphaAmount: CGFloat = didSnap ? 0.45 : 0.2
+    let alphaAmount: CGFloat = 0.45
     view.backgroundColor = UIColor.white.withAlphaComponent(alphaAmount)
   }
   
   @objc func displayLinkFired(sender: CADisplayLink) {
     if countDownLabel?.text == "Start" {
-      flashView(didSnap: false)
       countDownLabel?.text = "1"
       
       return
@@ -90,10 +89,9 @@ class CameraController: UIViewController {
     guard let fastLink = fastLink else { return }
     
     if let value = Int(text), value < 3 {
-      flashView(didSnap: false)
       countDownLabel?.text = String(value + 1)
     } else {
-      flashView(didSnap: true)
+      flashView()
       displayLink?.invalidate()
       self.pickerController?.takePicture()
       
