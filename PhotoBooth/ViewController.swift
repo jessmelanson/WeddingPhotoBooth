@@ -233,6 +233,7 @@ class ViewController: UIViewController {
       {
         ccVC.view.frame = imgControllerOverlayFrame
         imageController.cameraOverlayView = ccVC.view
+        ccVC.resetPhotoViews()
         
         let screenSize = UIScreen.main.bounds.size
         let cameraAspectRatio: CGFloat = 4.0 / 3.0 //! Note: 4.0 and 4.0 works

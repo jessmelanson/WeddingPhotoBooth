@@ -61,6 +61,12 @@ class CameraController: UIViewController {
     }
   }
   
+    func resetPhotoViews() {
+      photoViews.forEach {
+        $0.backgroundColor = UIColor.clear
+      }
+    }
+
   var numPhotosTaken: Int = 0 {
     didSet {
       let effected = photoViews[photoViews.startIndex..<numPhotosTaken]
