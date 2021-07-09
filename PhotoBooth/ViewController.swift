@@ -41,7 +41,8 @@ private class RenderSaver {
 
 class ViewController: UIViewController {
   @IBOutlet weak var imageView: UIImageView!
-  
+  @IBOutlet var splashImageView: UIImageView!
+    
   @IBOutlet weak var titleLabel: UILabel!
   @IBOutlet weak var instructionsLabel: UILabel!
   
@@ -67,6 +68,7 @@ class ViewController: UIViewController {
         self.imageView?.isHidden = false
         self.instructionsLabel.isHidden = true
         self.titleLabel.isHidden = true
+        self.splashImageView.isHidden = true
         strip.renderResult {
           RenderSaver.locationManager = self.manager
           RenderSaver.render = $0
@@ -90,7 +92,7 @@ class ViewController: UIViewController {
           animation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeOut)
           self.view.layer.add(animation, forKey: "BGColorAnimation")
           
-          self.view.backgroundColor = UIColor.black
+          self.view.backgroundColor = UIColor.white
           self.imageView.image = UIImage.resizeImage(image: $0, newHeight: self.view.bounds.height)
           self.imageView?.setNeedsLayout()
           
@@ -107,10 +109,10 @@ class ViewController: UIViewController {
         animation.timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeIn)
         view.layer.add(animation, forKey: "BGColorAnimation")
         
-        view.backgroundColor = UIColor.white
         imageView?.image = nil
         instructionsLabel.isHidden = false
         titleLabel.isHidden = false
+        splashImageView.isHidden = false
         photos.removeAll(keepingCapacity: true)
       }
     }
@@ -119,6 +121,7 @@ class ViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     // Do any additional setup after loading the view, typically from a nib.
+    splashImageView.image = UIImage(named: "photographer")!
   }
   
   lazy var manager: CLLocationManager = {
@@ -170,21 +173,24 @@ class ViewController: UIViewController {
   
   private func promptForActions() {
     let alert = UIAlertController(title: "Photo Booth", message: "Awesome!", preferredStyle: .actionSheet)
+    
     let printAction = UIAlertAction(title: "Print", style: .default) { _ in
       alert.dismiss(animated: false, completion: nil)
-      
       self.printImageTapped()
     }
     
     let emailAction = UIAlertAction(title: "Email", style: .default) { _ in
       alert.dismiss(animated: false, completion: nil)
-      
       self.showEmailDialog()
+    }
+    
+    let textAction = UIAlertAction(title: "iMessage", style: .default) { _ in
+      alert.dismiss(animated: false, completion: nil)
+      self.showTextDialog()
     }
     
     let restartAction = UIAlertAction(title: "Start Over", style: .destructive) { _ in
       self.photoStrip = nil
-      
       alert.dismiss(animated: true, completion: nil)
     }
     
@@ -192,8 +198,9 @@ class ViewController: UIViewController {
       alert.dismiss(animated: true, completion: nil)
     }
     
-    alert.addAction(printAction)
+//    alert.addAction(printAction)
     alert.addAction(emailAction)
+    alert.addAction(textAction)
     alert.addAction(restartAction)
     alert.addAction(cancelAction)
     
@@ -201,8 +208,8 @@ class ViewController: UIViewController {
       alert.modalPresentationStyle = .popover
       
       popoverPresenter.sourceView = view
-      popoverPresenter.sourceRect = CGRect(x: view.frame.width / 2 - 150, y: view.bounds.height - 625, width: 300, height: 300)
-      popoverPresenter.permittedArrowDirections = .up
+      popoverPresenter.sourceRect = CGRect(x: (view.frame.width / 3) * 2 - 100, y: 100, width: 300, height: 300)
+      popoverPresenter.permittedArrowDirections = .left
     }
     
     if let pvc = presentedViewController {
@@ -282,8 +289,6 @@ class ViewController: UIViewController {
           
           self.showAlert(message: error.localizedDescription)
         }
-        
-        
         return
       }
       
@@ -370,26 +375,39 @@ struct Formatters {
 extension ViewController {
   func showEmailDialog() {
     if MFMailComposeViewController.canSendMail() {
-      let idealSubject = "Photo booth @ Kim and Ben's Wedding took a photo at \(Formatters.prettyDateTimeFormatterLocal.string(from: NSDate() as Date))"
-      
       let composeVC = MFMailComposeViewController(nibName: nil, bundle: nil)
       composeVC.mailComposeDelegate = self
-      composeVC.setToRecipients(["mobile@socialcodeinc.com"])
-      composeVC.setSubject(idealSubject)
+      composeVC.setSubject(getShareSubject())
       composeVC.setMessageBody("Thanks for coming! We love you!", isHTML: false)
       photoStrip?.renderResult {
         guard let resultData = $0.jpegData(compressionQuality: 0.84) else { return }
-        
         composeVC.addAttachmentData(resultData, mimeType: "image/jpeg", fileName: "PhotoBooth.jpeg")
-        
         self.present(composeVC, animated: true, completion: nil)
       }
     } else {
-      showAlert(message: "Shit! Can't send mail.... help find a nerd!")
+      showAlert(message: "Can't send email. Try something else.")
     }
   }
-}
+    
+  func showTextDialog() {
+    if MFMessageComposeViewController.canSendText() {
+      let composeVC = MFMessageComposeViewController(nibName: nil, bundle: nil)
+      composeVC.messageComposeDelegate = self
+      composeVC.body = getShareSubject()
+      photoStrip?.renderResult {
+        guard let resultData = $0.jpegData(compressionQuality: 0.84) else { return }
+        composeVC.addAttachmentData(resultData, typeIdentifier: "image/jpeg", filename: "PhotoBooth.jpeg")
+        self.present(composeVC, animated: true, completion: nil)
+      }
+    } else {
+      showAlert(message: "Can't send iMessage. Try something else.")
+    }
+  }
 
+  private func getShareSubject() -> String {
+    return "Photo booth @ Andrew & Jess's Wedding took a photo at \(Formatters.prettyDateTimeFormatterLocal.string(from: NSDate() as Date))"
+  }
+}
 
 extension ViewController : MFMailComposeViewControllerDelegate {
   func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
@@ -400,6 +418,12 @@ extension ViewController : MFMailComposeViewControllerDelegate {
     } else {
       controller.dismiss(animated: true, completion: nil)
     }
+  }
+}
+
+extension ViewController: MFMessageComposeViewControllerDelegate {
+  func messageComposeViewController(_ controller: MFMessageComposeViewController, didFinishWith result: MessageComposeResult) {
+    controller.dismiss(animated: true, completion: nil)
   }
 }
 

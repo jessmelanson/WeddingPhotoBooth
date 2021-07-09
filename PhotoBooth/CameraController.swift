@@ -41,7 +41,7 @@ class CameraController: UIViewController {
       
       DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
         let displayLink = CADisplayLink(target: self, selector: #selector(self.displayLinkFired(sender:)))
-        displayLink.preferredFramesPerSecond = 1
+        displayLink.preferredFramesPerSecond = 2
         
         let fastLink = CADisplayLink(target: self, selector: #selector(self.fastLinkFired(sender:)))
         fastLink.preferredFramesPerSecond = 10
